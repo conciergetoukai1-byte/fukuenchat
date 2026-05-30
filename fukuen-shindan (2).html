@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>復縁可能性診断</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1410;
+  --paper: #f5f0e8;
+  --cream: #faf6ed;
+  --gold: #b8963e;
+  --gold-light: #d4af5a;
+  --gold-dark: #8a6e2a;
+  --border: #d4c9a8;
+  --muted: #7a6e5a;
+  --shadow: rgba(26,20,16,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 24px 16px;
+  background-image: radial-gradient(ellipse at 20% 50%, rgba(184,150,62,0.07) 0%, transparent 60%);
+}
+.wrap { max-width: 680px; margin: 0 auto; }
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 28px 20px 24px;
+  background: linear-gradient(135deg, #1a1410 0%, #2d2318 100%);
+  border-radius: 12px;
+  border-bottom: 2px solid var(--gold);
+  position: relative;
+  overflow: hidden;
+}
+.header::after {
+  content: '◆';
+  position: absolute;
+  right: 20px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 80px;
+  color: rgba(184,150,62,0.07);
+}
+.header-badge {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  border: 1px solid rgba(184,150,62,0.4);
+  padding: 3px 12px;
+  margin-bottom: 10px;
+}
+.header h1 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.header p { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.6; }
+
+/* Progress */
+.progress-wrap { margin: 1.5rem 0 0.4rem; }
+.progress-bar-bg { background: #e8e0d0; border-radius: 99px; height: 5px; }
+.progress-bar { height: 5px; border-radius: 99px; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+.progress-label { font-size: 11px; color: var(--muted); text-align: right; margin-top: 4px; margin-bottom: 1.25rem; letter-spacing: 0.05em; }
+
+/* Question card */
+.question-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--gold);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 20px var(--shadow);
+}
+.q-num {
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.q-text {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.65;
+  margin-bottom: 1.4rem;
+}
+
+/* Option buttons — redesigned */
+.options { display: flex; flex-direction: column; gap: 10px; }
+
+.opt-btn {
+  position: relative;
+  background: var(--cream);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px 14px 48px;
+  font-size: 14px;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+.opt-btn::before {
+  content: attr(data-label);
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+.opt-btn:hover {
+  border-color: var(--gold);
+  background: #fff;
+  transform: translateX(3px);
+  box-shadow: 0 3px 12px rgba(184,150,62,0.15);
+}
+.opt-btn:hover::before {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.opt-btn.selected {
+  background: linear-gradient(135deg, #1a1410 0%, #2d2318 100%);
+  border-color: var(--gold);
+  color: #fff;
+  transform: translateX(3px);
+  box-shadow: 0 4px 16px rgba(26,20,16,0.25);
+}
+.opt-btn.selected::before {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1a1410;
+  content: '✓';
+  font-size: 12px;
+}
+
+/* Nav */
+.nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+.btn-back {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all 0.2s;
+}
+.btn-back:hover { border-color: var(--gold); color: var(--gold-dark); }
+.btn-next {
+  background: linear-gradient(135deg, #1a1410, #2d2318);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: 11px 28px;
+  font-size: 13px;
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 600;
+  color: var(--gold);
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: all 0.2s;
+}
+.btn-next:hover { border-color: var(--gold-light); color: var(--gold-light); box-shadow: 0 4px 14px rgba(184,150,62,0.25); }
+.btn-next:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Result */
+.result-wrap { display: none; animation: fadeUp 0.5s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+.result-header {
+  text-align: center;
+  background: linear-gradient(135deg, #1a1410, #2d2318);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 28px 20px;
+  margin-bottom: 1.25rem;
+}
+.type-badge {
+  display: inline-block;
+  background: rgba(184,150,62,0.15);
+  color: var(--gold-light);
+  border: 1px solid rgba(184,150,62,0.4);
+  border-radius: 20px;
+  padding: 4px 16px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  margin-bottom: 12px;
+}
+.type-name {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+.type-name span { color: var(--gold-light); }
+.type-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.05em;
+}
+
+/* Score bars */
+.score-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+.score-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.score-row { margin-bottom: 14px; }
+.score-label { font-size: 13px; color: var(--ink); margin-bottom: 5px; display: flex; justify-content: space-between; font-weight: 500; }
+.score-pct { font-size: 12px; color: var(--gold-dark); font-weight: 700; }
+.score-track { background: #f0ebe0; border-radius: 99px; height: 8px; }
+.score-fill { height: 8px; border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1); }
+
+/* Desc */
+.desc-card {
+  background: var(--cream);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 10px 10px 0;
+  padding: 1.25rem 1.25rem 1.25rem 1.4rem;
+  margin-bottom: 1rem;
+}
+.desc-card h3 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold-dark);
+  margin-bottom: 10px;
+  letter-spacing: 0.08em;
+}
+.desc-card p { font-size: 14px; color: #3a2e22; line-height: 1.85; }
+
+/* Actions */
+.action-list {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+.action-list h3 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.action-item {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #3a2e22;
+  line-height: 1.6;
+  align-items: flex-start;
+}
+.action-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a1410, #2d2318);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.btn-retry {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 13px;
+  font-size: 13px;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.btn-retry:hover { border-color: var(--gold); color: var(--gold-dark); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="quiz-view">
+    <div class="header">
+      <div class="header-badge">元カノ・元カレ 復縁診断</div>
+      <h1>復縁可能性診断</h1>
+      <p>20の質問に答えるだけ。あなたの復縁タイプと<br>今すぐ取るべき行動がわかります。</p>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar-bg"><div class="progress-bar" id="pbar" style="width:5%"></div></div>
+    </div>
+    <div class="progress-label" id="plabel">1 / 20</div>
+    <div class="question-card">
+      <div class="q-num" id="qnum">QUESTION 01</div>
+      <div class="q-text" id="qtext"></div>
+      <div class="options" id="opts"></div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" id="btn-back" onclick="goBack()">← 戻る</button>
+      <button class="btn-next" id="btn-next" onclick="goNext()" disabled>次へ →</button>
+    </div>
+  </div>
+
+  <div class="result-wrap" id="result-view">
+    <div class="result-header">
+      <div class="type-badge" id="r-badge">診断結果</div>
+      <div class="type-name" id="r-name"></div>
+      <div class="type-sub" id="r-sub"></div>
+    </div>
+    <div class="score-card" id="r-scores"></div>
+    <div class="desc-card"><h3>▶ あなたへの診断コメント</h3><p id="r-desc"></p></div>
+    <div class="action-list" id="r-actions"></div>
+    <button class="btn-retry" onclick="restart()">もう一度診断する</button>
+  </div>
+</div>
+
+<script>
+const questions=[
+  {text:"別れてからどのくらいが経ちますか？",opts:["1ヶ月未満","1〜3ヶ月","3〜6ヶ月","6ヶ月以上"],scores:[{A:3},{A:2,B:1},{B:2,C:1},{C:3}]},
+  {text:"別れた主な原因は何だと思いますか？",opts:["自分の言動や態度（束縛・無視・価値観の押しつけなど）","すれ違いや価値観の違い","相手の浮気や裏切り","特に原因がわからない"],scores:[{D:3},{B:2},{E:3},{F:2}]},
+  {text:"現在、元カノ・元カレとどのような連絡状況ですか？",opts:["完全にブロック・音信不通","たまに連絡がある","定期的に連絡がとれている","友達として会うこともある"],scores:[{C:3},{B:2},{A:2},{A:3,G:1}]},
+  {text:"別れてから、自分自身の「自分磨き」はどの程度できていますか？",opts:["ほとんど何もできていない","少しは取り組んでいる","かなり本気で取り組んでいる","別れる前から継続してできている"],scores:[{F:3},{B:1},{A:2},{G:3}]},
+  {text:"元カノ・元カレがあなたに別れを告げた回数は？",opts:["今回が初めて","2回","3回以上","段階的に距離が開いていった"],scores:[{A:2},{B:2},{C:3},{D:2}]},
+  {text:"別れた後、相手に対してしてしまったNG行動はありますか？",opts:["しつこく連絡した・追いかけた","感情的になって怒鳴った・泣いた","何もしていない（冷静に対処できた）","相手のSNSや行動を監視・詮索した"],scores:[{C:2,D:1},{D:3},{A:3},{E:3}]},
+  {text:"相手の友人や共通の知人との関係への働きかけはしていますか？",opts:["まったくしていない","少し意識している","積極的にアプローチしている","むしろ関係が悪化した"],scores:[{F:2},{B:1},{G:3},{C:2}]},
+  {text:"今の自分の経済状況・生活基盤はどうですか？",opts:["不安定で改善が必要","普通・どちらともいえない","安定している","相手より明らかに充実している"],scores:[{F:3},{B:1},{A:2},{G:2}]},
+  {text:"相手が別れたいと思った根本原因を、自分なりに分析できていますか？",opts:["全くわかっていない","なんとなくわかる気がする","かなり深く分析できた","幼少期の自分の問題まで遡って考えた"],scores:[{F:3},{B:2},{A:2},{G:3}]},
+  {text:"別れてから、相手はSNSなどであなたに対して何らかのサインを出していますか？",opts:["完全に無反応・シャットアウト","たまに反応してくれる","明らかにこちらを意識した投稿がある","SNSを見ていないのでわからない"],scores:[{C:2},{B:2},{A:3},{F:1}]},
+  {text:"「復縁したい」という気持ちの裏に、どんな感情がありますか？",opts:["ただ寂しい・不安","相手への本物の愛情","悔しさ・見返したい気持ち","失った関係への後悔と責任感"],scores:[{F:2},{A:2,G:1},{H:3},{G:3}]},
+  {text:"コンフォートゾーン（居心地の良い場所）から抜け出す行動を取れていますか？",opts:["全くできていない","少しずつ取り組んでいる","積極的に新しいことに挑戦している","肉体的・精神的に自分を追い込んでいる"],scores:[{F:3},{B:1},{A:2},{G:3}]},
+  {text:"相手の立場に立って、相手の「別れたい気持ち」を理解しようとしていますか？",opts:["相手が悪いと思っている","自分も悪かったと認めている","相手の気持ちを深く考えられている","相手の気持ちを完全に受け入れられた"],scores:[{D:3},{B:2},{A:2},{G:3}]},
+  {text:"今の自分の外見・生活習慣の改善に取り組んでいますか？",opts:["全く何もしていない","少し気にするようになった","本格的に取り組んでいる","すでに明らかに変化が出ている"],scores:[{F:2},{B:1},{A:2},{G:2}]},
+  {text:"「ネット復縁工作」のような間接的アプローチの概念を知っていますか？",opts:["全く知らない","なんとなく知っている","理解していて取り組もうとしている","すでに実践している"],scores:[{F:1},{B:1},{A:2},{G:3}]},
+  {text:"相手への連絡・アプローチの「質」はどうだと思いますか？",opts:["感情的・衝動的になっている","普通・特に工夫していない","相手の気持ちを考えた内容にしている","あえて連絡せず戦略的に動いている"],scores:[{D:2},{F:1},{B:2},{G:3}]},
+  {text:"自分の「自動思考（無意識の悪い癖）」を把握していますか？",opts:["そんな概念を知らない","なんとなく気づいている","具体的に把握できている","改善に向けて日常的に取り組んでいる"],scores:[{F:2},{B:1},{A:2},{G:3}]},
+  {text:"別れた後、共通の友人や知人への印象管理はできていますか？",opts:["全く意識していない","少し意識している","しっかり意識して行動している","すでに良い評判が相手に届いている"],scores:[{F:2},{B:1},{G:3},{A:1}]},
+  {text:"今のあなたの精神状態はどうですか？",opts:["毎日落ち込んで何もできない","波がある・不安定","辛いが前向きに行動できている","感情をコントロールして動けている"],scores:[{F:3},{D:2},{A:2},{G:3}]},
+  {text:"復縁に向けて、「今すぐやるべきことリスト」を作って行動していますか？",opts:["何から始めればいいかわからない","頭の中では考えているが行動できていない","リストを作って少しずつ動いている","本気でフル稼働している"],scores:[{F:3},{D:2},{B:2},{G:3}]}
+];
+
+const types={
+  A:{name:"アナリシス・パラリシスタイプ",sub:"考えすぎて決断マヒ状態",color:"#4a90d9",
+    desc:"あなたはすでに多くの情報を集め、状況を深く理解しています。しかしその「考える要素の多さ」が逆に決断をマヒさせているわけです。分析しすぎて動けなくなる——これをアナリシス・パラリシスと言います。今のあなたに必要なのは「もう少し考える時間」ではなく「あと一押しの行動」です。ネット復縁工作はその一押しになる可能性が高い。考え続けることをやめて、今日から一つだけ動いてみましょう。",
+    actions:["「考えること」をいったんやめて今日一つだけ行動する","ネット復縁工作について具体的に調べてみる","やるべきことリストを紙に書き出して優先順位をつける"]},
+  B:{name:"コンフォートゾーンタイプ",sub:"居心地の良い場所から抜け出せていない",color:"#5bba6f",
+    desc:"方向性は間違っていません。しかし正直に言います——まだ本当の意味で「苦しんで」いないのです。復縁は生ぬるい努力では手に入らない。もっと汗と涙を流して、泥だらけになって頑張れば、復縁の可能性は確実にアップします。アインシュタインが言ったように、同じことを繰り返して違う結果を期待するのは狂気です。今すぐコンフォートゾーンを抜け出しましょう。",
+    actions:["今日から「毎日一つ、やりたくないことをやる」ルールを設ける","肉体的に自分を追い込む習慣を作る（筋トレ・ランニングなど）","自分の自動思考（無意識の癖）を紙に書き出す"]},
+  C:{name:"冷却期間タイプ",sub:"距離と時間が必要な局面",color:"#e8a838",
+    desc:"相手との距離が開いており、今すぐの直接アプローチは逆効果になりやすい状況です。焦れば焦るほど相手は離れていきます。今は「自分磨き」に全集中すべき時期ですが、自分磨きだけでは相手がこちらに意識を向けてくれません。間接的なアプローチを並行して取り入れることが、この局面を打開するカギになるわけです。",
+    actions:["完全な冷却期間を設ける（最低1〜2ヶ月）","直接連絡・SNS監視を完全にやめる","自分磨きに全エネルギーを集中させる"]},
+  D:{name:"エモーションタイプ",sub:"感情が行動の邪魔をしている",color:"#c0392b",
+    desc:"感情が先走り、行動の質が下がっています。相手に裏切られた、傷つけられたという気持ちがあるなら——いっそすべて自分の責任にしてしまった方がまだ楽なのです。そしてその方が復縁の可能性は確実に上がります。相手を責めているうちは何も変わりません。すべての原因は自分にある、と決めてしまうことで初めて行動できるようになるわけです。",
+    actions:["「切り替えスイッチ」を作る（アイテムを握る・言葉を叫ぶ）","「すべて自分の責任」と紙に書いて毎朝読む","感情が高ぶったときは絶対に連絡しないルールを決める"]},
+  E:{name:"トラウマタイプ",sub:"被害者意識が自分の成長を妨げている",color:"#8e44ad",
+    desc:"トラウマになるような悲しい経験をした人の方が、実は大きく成長できます。深く傷ついた人ほど、その経験を乗り越えたときの強さは本物です。しかし今のあなたには、まだ被害者意識という重いフタが残っている。そのフタがあなた自身の成長を妨げているわけです。あなたの上に覆いかぶさったその被害者意識というフタを外せば、復縁への道が開けます。復縁コンシェルジュに何度も相談することでその重いフタは外せるはず。復縁セルフガイドコースがおすすめです。",
+    actions:["「被害者意識」と「事実」を紙に書いて切り分けてみる","相手の行動の背景にある「自分側の原因」を一つ探してみる","復縁セルフガイドコースで繰り返し相談して被害者意識を手放す"]},
+  F:{name:"オン・ユア・マークタイプ",sub:"まずはスタートラインに立つことが先決",color:"#7f8c8d",
+    desc:"正直に言います。今のあなたはまだスタートラインにも立てていない状態です。しかしそれはあなたの可能性がないということでは全くありません。覚悟を決めてスタートラインに立ち、「位置について！」の姿勢を取ることが今すぐやるべきことです。一人ではその勇気が出ないなら、復縁コンシェルジュの復縁セルフガイドコースにお申し込みして、たくさん相談することが大切です。一人で抱え込まないでください。",
+    actions:["「やることリスト」を今日中に紙に書き出す","自分磨きを今日から一つだけ始める（何でもいい）","復縁セルフガイドコースで相談してスタートの後押しをもらう"]},
+  G:{name:"ラストスパートタイプ",sub:"あとは最後の一押しが足りないだけ",color:"#27ae60",
+    desc:"復縁できる可能性はかなり高まっています。自己分析も行動も戦略も、かなりのレベルで揃っている。それなのになかなか復縁できないなら、あとは最後の一押しが足りないだけかもしれません。ネット復縁工作で少しでも相手の心を動かせれば、復縁できる可能性は極限まで高まりそうです。ゴールはもうすぐそこです。",
+    actions:["ネット復縁工作の具体的な方法を今すぐ学ぶ","相手の友人・共通の知人との関係を継続的に丁寧に育てる","自分磨きの成果を「見えるかたち」で相手の周囲に届ける"]},
+  H:{name:"エクスプロージョンタイプ",sub:"爆発寸前のエネルギーを正しい方向へ",color:"#d35400",
+    desc:"強い悔しさ、見返したい、復讐したい、認めさせたいという気持ちがあって、今にも爆発してしまいそうな状態ですね。そのエネルギーは本物です。しかし方向を間違えると、相手への攻撃や自滅につながります。一度復縁コンシェルジュに相談して、そのエネルギーを正しい方向に向けることが重要です。爆発するエネルギーを「自分を磨く燃料」に変換できれば、それは最強の武器になります。",
+    actions:["今すぐ復縁コンシェルジュに相談してエネルギーの方向を定める","悔しさを「自分磨きの燃料」として意識的に使う","感情が爆発しそうなときは絶対に相手に連絡しない"]}
+};
+
+const labels = ['A','B','C','D'];
+let current=0,answers=[],scores={A:0,B:0,C:0,D:0,E:0,F:0,G:0,H:0};
+
+function renderQuestion(){
+  const q=questions[current];
+  document.getElementById('qnum').textContent='QUESTION '+(current+1<10?'0'+(current+1):current+1);
+  document.getElementById('qtext').textContent=q.text;
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn'+(answers[current]===i?' selected':'');
+    btn.setAttribute('data-label', labels[i]);
+    btn.textContent=o;
+    btn.onclick=()=>selectOpt(i);
+    opts.appendChild(btn);
+  });
+  const pct=Math.round(((current+1)/20)*100);
+  document.getElementById('pbar').style.width=Math.max(5,pct)+'%';
+  document.getElementById('plabel').textContent=(current+1)+' / 20';
+  document.getElementById('btn-next').disabled=answers[current]===undefined;
+  document.getElementById('btn-back').style.visibility=current===0?'hidden':'visible';
+  document.getElementById('btn-next').textContent=current===19?'診断結果を見る →':'次へ →';
+}
+
+function selectOpt(i){
+  answers[current]=i;
+  document.querySelectorAll('.opt-btn').forEach((b,idx)=>{b.classList.toggle('selected',idx===i);});
+  document.getElementById('btn-next').disabled=false;
+}
+function goNext(){if(answers[current]===undefined)return;if(current<19){current++;renderQuestion();}else{calcResult();}}
+function goBack(){if(current>0){current--;renderQuestion();}}
+function calcResult(){
+  scores={A:0,B:0,C:0,D:0,E:0,F:0,G:0,H:0};
+  answers.forEach((ans,qi)=>{const s=questions[qi].scores[ans];if(s)Object.keys(s).forEach(k=>{scores[k]=(scores[k]||0)+s[k];});});
+  let best='F',bestScore=-1;
+  Object.keys(scores).forEach(k=>{if(scores[k]>bestScore){bestScore=scores[k];best=k;}});
+  showResult(best);
+}
+function showResult(typeKey){
+  const t=types[typeKey];
+  document.getElementById('quiz-view').style.display='none';
+  document.getElementById('result-view').style.display='block';
+  document.getElementById('r-badge').textContent='診断タイプ '+typeKey;
+  document.getElementById('r-name').innerHTML=t.name;
+  document.getElementById('r-sub').textContent=t.sub;
+  document.getElementById('r-desc').textContent=t.desc;
+  const axes=[
+    {label:'自己認識の深さ',keys:['A','G'],color:'#4a90d9'},
+    {label:'行動力・実践度',keys:['G','B'],color:'#27ae60'},
+    {label:'感情コントロール',keys:['A','B'],color:'#e8a838'},
+    {label:'復縁戦略の理解',keys:['G','A'],color:'#8e44ad'},
+    {label:'環境整備度',keys:['G','B'],color:'#d35400'}
+  ];
+  const maxPossible=15;
+  let html='<div class="score-card-title">あなたの5軸スコア</div>';
+  axes.forEach(ax=>{
+    const val=Math.min(ax.keys.reduce((s,k)=>s+(scores[k]||0),0),maxPossible);
+    const pct=Math.round((val/maxPossible)*100);
+    html+=`<div class="score-row"><div class="score-label"><span>${ax.label}</span><span class="score-pct">${pct}%</span></div><div class="score-track"><div class="score-fill" style="width:${pct}%; background:${ax.color}"></div></div></div>`;
+  });
+  document.getElementById('r-scores').innerHTML=html;
+  const al=document.getElementById('r-actions');
+  al.innerHTML='<h3>今すぐ取るべき行動 TOP3</h3>'+
+    t.actions.map((a,i)=>`<div class="action-item"><div class="action-num">${i+1}</div><span>${a}</span></div>`).join('');
+}
+function restart(){
+  current=0;answers=[];scores={A:0,B:0,C:0,D:0,E:0,F:0,G:0,H:0};
+  document.getElementById('result-view').style.display='none';
+  document.getElementById('quiz-view').style.display='block';
+  renderQuestion();
+}
+renderQuestion();
+</script>
+</body>
+</html>
