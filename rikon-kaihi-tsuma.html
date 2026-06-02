@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>離婚回避可能性診断（妻向け）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1410; --paper: #f5f0e8; --cream: #faf6ed;
+  --gold: #b8963e; --gold-light: #d4af5a; --gold-dark: #8a6e2a;
+  --border: #d4c9a8; --muted: #7a6e5a; --shadow: rgba(26,20,16,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans JP', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; padding: 24px 16px; background-image: radial-gradient(ellipse at 20% 50%, rgba(184,150,62,0.07) 0%, transparent 60%); }
+.wrap { max-width: 680px; margin: 0 auto; }
+.header { text-align: center; margin-bottom: 2rem; padding: 28px 20px 24px; background: linear-gradient(135deg, #1a1410 0%, #2d2318 100%); border-radius: 12px; border-bottom: 2px solid var(--gold); position: relative; overflow: hidden; }
+.header::after { content: '◆'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 80px; color: rgba(184,150,62,0.07); }
+.header-badge { display: inline-block; font-size: 11px; letter-spacing: 0.15em; color: var(--gold); border: 1px solid rgba(184,150,62,0.4); padding: 3px 12px; margin-bottom: 10px; }
+.header h1 { font-family: 'Noto Serif JP', serif; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 0.06em; margin-bottom: 6px; }
+.header p { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.6; }
+.progress-wrap { margin: 1.5rem 0 0.4rem; }
+.progress-bar-bg { background: #e8e0d0; border-radius: 99px; height: 5px; }
+.progress-bar { height: 5px; border-radius: 99px; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+.progress-label { font-size: 11px; color: var(--muted); text-align: right; margin-top: 4px; margin-bottom: 1.25rem; letter-spacing: 0.05em; }
+.question-card { background: #fff; border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 4px 20px var(--shadow); }
+.q-num { font-size: 11px; color: var(--gold); letter-spacing: 0.12em; margin-bottom: 10px; font-weight: 500; }
+.q-text { font-family: 'Noto Serif JP', serif; font-size: 17px; font-weight: 600; color: var(--ink); line-height: 1.65; margin-bottom: 1.4rem; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt-btn { position: relative; background: var(--cream); border: 1.5px solid var(--border); border-radius: 8px; padding: 14px 16px 14px 48px; font-size: 14px; font-family: 'Noto Sans JP', sans-serif; color: var(--ink); cursor: pointer; text-align: left; line-height: 1.5; transition: all 0.2s ease; }
+.opt-btn::before { content: attr(data-label); position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--muted); line-height: 24px; text-align: center; transition: all 0.2s ease; }
+.opt-btn:hover { border-color: var(--gold); background: #fff; transform: translateX(3px); box-shadow: 0 3px 12px rgba(184,150,62,0.15); }
+.opt-btn:hover::before { border-color: var(--gold); color: var(--gold); }
+.opt-btn.selected { background: linear-gradient(135deg, #1a1410 0%, #2d2318 100%); border-color: var(--gold); color: #fff; transform: translateX(3px); box-shadow: 0 4px 16px rgba(26,20,16,0.25); }
+.opt-btn.selected::before { background: var(--gold); border-color: var(--gold); color: #1a1410; content: '✓'; font-size: 12px; }
+.nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+.btn-back { background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 10px 20px; font-size: 13px; color: var(--muted); cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: all 0.2s; }
+.btn-back:hover { border-color: var(--gold); color: var(--gold-dark); }
+.btn-next { background: linear-gradient(135deg, #1a1410, #2d2318); border: 1px solid var(--gold); border-radius: 8px; padding: 11px 28px; font-size: 13px; font-family: 'Noto Serif JP', serif; font-weight: 600; color: var(--gold); cursor: pointer; letter-spacing: 0.06em; transition: all 0.2s; }
+.btn-next:hover { border-color: var(--gold-light); color: var(--gold-light); box-shadow: 0 4px 14px rgba(184,150,62,0.25); }
+.btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
+.result-wrap { display: none; animation: fadeUp 0.5s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.result-header { text-align: center; background: linear-gradient(135deg, #1a1410, #2d2318); border: 1px solid var(--gold); border-radius: 12px; padding: 28px 20px; margin-bottom: 1.25rem; }
+.type-badge { display: inline-block; background: rgba(184,150,62,0.15); color: var(--gold-light); border: 1px solid rgba(184,150,62,0.4); border-radius: 20px; padding: 4px 16px; font-size: 11px; letter-spacing: 0.12em; margin-bottom: 12px; }
+.type-name { font-family: 'Noto Serif JP', serif; font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 8px; letter-spacing: 0.04em; line-height: 1.4; }
+.type-sub { font-size: 13px; color: rgba(255,255,255,0.6); letter-spacing: 0.05em; }
+.score-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 2px 12px var(--shadow); }
+.score-card-title { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 14px; }
+.score-row { margin-bottom: 14px; }
+.score-label { font-size: 13px; color: var(--ink); margin-bottom: 5px; display: flex; justify-content: space-between; font-weight: 500; }
+.score-pct { font-size: 12px; color: var(--gold-dark); font-weight: 700; }
+.score-track { background: #f0ebe0; border-radius: 99px; height: 8px; }
+.score-fill { height: 8px; border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1); }
+.desc-card { background: var(--cream); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; padding: 1.25rem 1.25rem 1.25rem 1.4rem; margin-bottom: 1rem; }
+.desc-card h3 { font-family: 'Noto Serif JP', serif; font-size: 13px; font-weight: 700; color: var(--gold-dark); margin-bottom: 10px; letter-spacing: 0.08em; }
+.desc-card p { font-size: 14px; color: #3a2e22; line-height: 1.85; }
+.action-list { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 2px 12px var(--shadow); }
+.action-list h3 { font-family: 'Noto Serif JP', serif; font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.action-item { display: flex; gap: 12px; margin-bottom: 12px; font-size: 14px; color: #3a2e22; line-height: 1.6; align-items: flex-start; }
+.action-num { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #1a1410, #2d2318); border: 1px solid var(--gold); color: var(--gold); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.btn-retry { width: 100%; background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 13px; font-size: 13px; font-family: 'Noto Sans JP', sans-serif; color: var(--muted); cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em; }
+.btn-retry:hover { border-color: var(--gold); color: var(--gold-dark); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="quiz-view">
+    <div class="header">
+      <div class="header-badge">妻のための 離婚回避診断</div>
+      <h1>離婚回避可能性診断（妻向け）</h1>
+      <p>20の質問に答えるだけ。あなたの離婚回避タイプと<br>今すぐ取るべき行動がわかります。</p>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar-bg"><div class="progress-bar" id="pbar" style="width:5%"></div></div>
+    </div>
+    <div class="progress-label" id="plabel">1 / 20</div>
+    <div class="question-card">
+      <div class="q-num" id="qnum">QUESTION 01</div>
+      <div class="q-text" id="qtext"></div>
+      <div class="options" id="opts"></div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" id="btn-back" onclick="goBack()">← 戻る</button>
+      <button class="btn-next" id="btn-next" onclick="goNext()" disabled>次へ →</button>
+    </div>
+  </div>
+  <div class="result-wrap" id="result-view">
+    <div class="result-header">
+      <div class="type-badge" id="r-badge">診断結果</div>
+      <div class="type-name" id="r-name"></div>
+      <div class="type-sub" id="r-sub"></div>
+    </div>
+    <div class="score-card" id="r-scores"></div>
+    <div class="desc-card"><h3>▶ あなたへの診断コメント</h3><p id="r-desc"></p></div>
+    <div class="action-list" id="r-actions"></div>
+    <button class="btn-retry" onclick="restart()">もう一度診断する</button>
+  </div>
+</div>
+<script>
+// A=昭和妻 B=男女平等 C=ネガティブ妻 D=肝っ玉母ちゃん E=実家友達依存 F=被害者意識 G=恋愛少女 H=亭主関白被害者
+const questions=[
+  // Q1: 昭和妻・肝っ玉母ちゃん
+  {text:"家事・育児・家庭のことは主に自分が担ってきましたか？",
+   opts:["ほぼすべて自分がやってきた・夫に頼れなかった","半分ずつ分担していた","夫の方が多く担ってくれていた","状況によって変わっていた"],
+   scores:[{A:4,D:2},{},{},{A:1}]},
+
+  // Q2: 男女平等・昭和妻
+  {text:"夫婦の役割分担について、あなたの考えに近いのはどれですか？",
+   opts:["男女平等が当然。夫婦は対等であるべきだ","妻が家庭を守り夫が稼ぐのが理想","お互いの得意なことを活かせばいい","特に深く考えたことがない"],
+   scores:[{B:4},{A:3},{},{A:1}]},
+
+  // Q3: ネガティブ妻・恋愛少女
+  {text:"新しいことへの挑戦や冒険について、あなたはどうですか？",
+   opts:["怖いことや危ないことはできるだけ避けたい","少し不安だが挑戦できる方だ","積極的にチャレンジする方だ","夫が一緒なら挑戦できるが一人では無理"],
+   scores:[{C:4},{C:1},{},{G:2,C:1}]},
+
+  // Q4: 肝っ玉母ちゃん・昭和妻
+  {text:"夫から「俺の居場所がない」「お前は俺がいなくても生きていける」と言われたことはありますか？",
+   opts:["よく言われた・言われたことがある","たまに言われた","言われたことはないが思われているかもしれない","全くない"],
+   scores:[{D:5,A:1},{D:3},{D:1},{} ]},
+
+  // Q5: 実家友達依存・恋愛少女
+  {text:"結婚後、実家や友人との交流はどのくらいでしたか？",
+   opts:["かなり多かった・よく実家に帰っていた","普通程度","夫を優先していた","夫が嫌がるので控えていた"],
+   scores:[{E:4},{},{},{G:3}]},
+
+  // Q6: 被害者意識・亭主関白被害者
+  {text:"夫から傷つけられた経験はありますか？",
+   opts:["浮気・嘘・裏切りをされた","暴言・モラハラを受けた","身体的な暴力を受けたことがある","特にない"],
+   scores:[{F:4},{H:3},{H:5},{} ]},
+
+  // Q7: 恋愛少女・男女平等
+  {text:"夫への気持ちについて一番近いのはどれですか？",
+   opts:["今でも夫のことが好きで離れたくない・束縛してしまう","夫を対等なパートナーとして見ている","夫への愛情より怒りや不満の方が大きい","夫への感情が薄れてしまっている"],
+   scores:[{G:4},{B:2},{F:2},{H:1}]},
+
+  // Q8: 昭和妻・被害者意識
+  {text:"夫の自己中心的な行動（遊び・ギャンブル・浮気など）を長い間我慢してきましたか？",
+   opts:["かなり我慢してきた","少し我慢してきた","我慢はしていない・その都度言ってきた","夫にそういう行動はない"],
+   scores:[{A:4,F:1},{A:2},{},{} ]},
+
+  // Q9: ネガティブ妻・肝っ玉母ちゃん
+  {text:"夫の趣味や好きなことに一緒に参加したことはありますか？",
+   opts:["ほとんどない・怖かったり面倒だったりして断ってきた","たまに参加した","積極的に参加してきた","夫の趣味に興味がなかった"],
+   scores:[{C:3,D:1},{C:1},{},{C:2}]},
+
+  // Q10: 実家友達依存・肝っ玉母ちゃん
+  {text:"夫のことを「しっかりした大人の男性」として扱ってきましたか？",
+   opts:["夫は自立した大人なので放っておいても大丈夫と思っていた","夫を子供のように構いすぎていた","夫の気持ちや欲求をよく気にかけてきた","よくわからない"],
+   scores:[{E:3,D:2},{G:2},{},{} ]},
+
+  // Q11: 男女平等・被害者意識
+  {text:"夫婦の話し合いで意見が対立したとき、あなたはどうしていましたか？",
+   opts:["論理的に正論をぶつけて自分の意見を通そうとした","感情的になって怒鳴ったり泣いたりした","相手の意見を聞いてから話し合った","言いたいことを我慢して黙っていた"],
+   scores:[{B:4},{F:2},{},{A:2,C:1}]},
+
+  // Q12: 恋愛少女・亭主関白被害者
+  {text:"夫の行動や交友関係を確認・監視したことはありますか？",
+   opts:["かなりある・スマホを見たり居場所を確認したりした","たまにある","ほとんどない","夫から監視・支配されていた"],
+   scores:[{G:4},{G:2},{},{H:4}]},
+
+  // Q13: 昭和妻・男女平等
+  {text:"夫を褒めたり感謝の言葉を伝えることはできていましたか？",
+   opts:["ほとんどできていなかった・当たり前だと思っていた","たまに伝えていた","積極的に伝えてきた","褒めると調子に乗るので意識的に抑えていた"],
+   scores:[{D:3,A:2},{},{},{B:2,D:1}]},
+
+  // Q14: 亭主関白被害者・被害者意識
+  {text:"夫との関係において、あなたが最も傷ついたことは何ですか？",
+   opts:["暴力・DV・酒乱・働かないなど生活を脅かす行為","浮気・嘘・裏切り","モラハラ・言葉による傷つけ","無視・無関心・愛情の欠如"],
+   scores:[{H:5},{F:4},{H:3,B:1},{F:2,C:1}]},
+
+  // Q15: ネガティブ妻・実家友達依存
+  {text:"離婚回避のために自分が変わろうと行動できていますか？",
+   opts:["不安で怖くてなかなか動けない","少しずつ動き始めている","積極的に変わろうとしている","何から始めればいいかわからない"],
+   scores:[{C:3},{C:1},{},{E:2,C:1}]},
+
+  // Q16: 肝っ玉母ちゃん・男女平等
+  {text:"あなたは職場や家庭でリーダー的な役割を担うことが多いですか？",
+   opts:["かなり多い・頼られることが多い","どちらかといえばそう","あまりない","夫の方がリーダー的だった"],
+   scores:[{D:3,B:2},{D:1,B:1},{},{H:1}]},
+
+  // Q17: 恋愛少女・ネガティブ妻
+  {text:"夫がいない時間（一人の時間）を楽しめますか？",
+   opts:["夫がいないと不安で楽しめない","少し寂しいが自分の時間を楽しめる","一人の時間が充実している","一人でいる方が気楽なくらい"],
+   scores:[{G:4},{G:1},{},{H:2}]},
+
+  // Q18: 亭主関白被害者・昭和妻
+  {text:"夫の理不尽な行動に対して、毅然とした態度で立ち向かえますか？",
+   opts:["怖くて言えない・黙って耐えてきた","少し言えるようになってきた","言いたいことは言える方だ","むしろ自分が強く出すぎてしまう"],
+   scores:[{H:3,A:2},{H:1},{},{B:2}]},
+
+  // Q19: 被害者意識・実家友達依存
+  {text:"自分の幼少期について振り返ったとき、どんな経験が多かったですか？",
+   opts:["辛い経験・認められなかった経験が多かった","普通だった","楽しい思い出が多かった","実家や友達との交流がとても多く賑やかだった"],
+   scores:[{F:4},{},{},{E:3}]},
+
+  // Q20: 総合
+  {text:"今の自分に一番近い状態はどれですか？",
+   opts:["夫が悪い・自分はそれほど悪くないと思っている","自分にも問題はあるが何から始めればいいかわからない","自分の問題は把握できているが行動できていない","本気で自分を変えようと動き始めている"],
+   scores:[{F:3,H:2},{C:2,E:1},{A:1,B:1,D:1},{G:1}]}
+];
+
+const types={
+  A:{name:"昭和妻タイプ",sub:"尽くしすぎて自分を失ってきた",color:"#c0392b",
+    desc:"夫に尽くしすぎて自分を失っているタイプです。努力や忍耐する力が強いため、夫の自己中心的な行動に耐えることができます。そのため夫が調子に乗って浮気やギャンブルなどをしてしまう場合もあります。夫への不満を言えずに溜め込んできたことで、夫との関係にひずみが生まれてきたわけです。",
+    actions:["夫のようにあなたも遊ぶことが大切です。夫と同じようにわがままに自由奔放に生きることで夫とのフィーリングが合うようになります。","このタイプはネット復縁工作の必要性はあまり高くありません。","復縁セルフガイドコースで復縁コンシェルジュに相談しながら自分磨きを進めるだけで離婚回避できる可能性があります。"]},
+  B:{name:"男女平等タイプ",sub:"平等意識が強すぎて女性らしさを失ってきた",color:"#8e44ad",
+    desc:"男女平等の意識が強すぎるとそれはモラハラに変わってしまいます。そのため夫はあなたの女性的な可愛らしさやセクシーさを感じることができず、まるで男性上司と一緒に暮らしているような窮屈さを感じています。論理で夫を説得しようとするほど、夫の自己肯定感は下がり続けてきたわけです。",
+    actions:["フェミニズム的な意識は保ったまま、同時に女性としての性的な強みを取り戻していくことが重要です。セクシーな洋服なども着用しながら女らしさをアピールしていきましょう。","このタイプの女性の夫はもはや精神が死んだような状態になっている可能性が高いので、ネット復縁工作も同時に行ってあなたの女性的な魅力を間接的に思い出させていくことが大切です。","論理的な話し合いをいったんやめて、感情と女性らしさで夫に接する日を意識的に作りましょう。"]},
+  C:{name:"ネガティブ妻タイプ",sub:"不安と恐れが行動を妨げている",color:"#2980b9",
+    desc:"女性的な穏やかさや優しさは強いものの、それが故に冒険やチャレンジを拒否してきたタイプです。男性はか弱くて守ってあげたいと感じるようなお姫様のような存在を求めているのではなく、本当は共に戦える戦友を求めていることを忘れないでください。不安や心配の言葉を夫にかけ続けることで、夫が疲弊して離婚を考え始めた可能性があります。",
+    actions:["夫と同じ趣味にチャレンジすることが急務です。あなたが怖がっていることを行ってもあなたは死にませんし逮捕もされません。わんぱく少年のような動きをして夫に心配される必要があります。","ネット復縁工作を行った方がもちろん離婚回避の可能性は高まりますが、ネガティブな考え方があまりにも強い場合は、むしろ復縁セルフガイドコースのみで離婚回避できる可能性があります。","復縁コンシェルジュに相談をし続けることで劇的な価値観の転換・パラダイムシフトを起こすことができます。"]},
+  D:{name:"肝っ玉母ちゃん妻タイプ",sub:"立派すぎて夫の居場所を奪ってきた",color:"#e67e22",
+    desc:"復縁コンシェルジュの母親もこのタイプです。復縁コンシェルジュの母親は「お前は立派な母親だけど、女ではない」と夫に言われ浮気されてしまいました。「お前は俺がいなくても生きていける」「この家には俺の居場所がない」などと夫に言われるタイプもこのタイプです。家事・育児・仕事を完璧にこなそうとするあまり、夫を不要な存在にしてしまったわけです。",
+    actions:["あなたの立派さや真面目さを下げる必要はありません。そのまま立派な妻・母として立ち振る舞いながら、毎日夫を褒めましょう。","急に褒め始めると夫から拒否されますから、「私は今まで人を褒めることを忘れていた。心の中では凄いと思っていてもそれを言葉に出さなかった。だから私の人間性を取り戻すため凄いと思ったことは口に出したい」と夫に伝えておいてください。","このタイプは夫の精神的なエネルギーがかなり下がっているため、ネット復縁工作が必要なケースです。ネット復縁工作によって間接的に夫の心に強い衝撃を与えて、夫の心を蘇生しなければいけません。"]},
+  E:{name:"実家・友達依存妻タイプ",sub:"夫の心の渇望に気づいていなかった",color:"#27ae60",
+    desc:"あなたは夫を立派な夫・立派な父親であると勘違いしていて、自分が実家や友達とたくさん交流して夫を放置していても、夫は自分自身で自立して生きていけると信じていたはずです。しかし実際夫はそうではなく、もっと自分のことを見て欲しいという子供のような強い欲求を抱いています。もっと夫を子供のように見てあげて、夫の心を抱きしめてあげることが必要です。",
+    actions:["あなた自身の自分磨きはもちろん必須事項ですが、同時にまだ少し幼い夫の心を立派な大人の男に成長させてあげなければいけません。","ネット復縁工作をぜひとも実行したほうが良いケースです。ネット復縁工作によって、立派な夫とはこう考えるものであり、立派な父親とはこう生きるものであるということを間接的にわからせていくことが離婚回避に直結します。","実家・友人との交流を意識的に減らし、夫との二人の時間を意識的に作りましょう。"]},
+  F:{name:"被害者意識タイプ",sub:"幼少期の傷が前進を妨げている",color:"#c0392b",
+    desc:"幼少期に辛い出来事をたくさん経験しているため、その辛い出来事から自分を守るために、相手が悪い・周りが悪い・私は悪くないんだという意識を強めることによって自殺せず生き抜いてきたけなげで一生懸命な小さな女の子です。しかしそのせいで自己責任だと考えて困難を乗り越える喜びをあまり体験できなかったタイプです。夫に浮気されたときに、浮気されたのは自分に原因があると考えることができないタイプです。",
+    actions:["実家に戻ったときにアルバムを探して、幼少期の小さかったかわいい自分のことを思い出してください。そしてその幼少期の可愛い自分を抱きしめて、頑張って生きてきたね、生き残ってきたね、と声をかけてあげてください。","しかしそれだけでは夫の心に大きな影響は与えられません。夫はおそらくあなたに完全に失望してしまってあなたのことを考えたくもないと思っていますから、ネット復縁工作によって少しでもあなたに意識を向けさせて、あなたの変化に気づかせていかなければならないケースです。","復縁セルフガイドコースで継続的に相談しながら被害者意識を手放していきましょう。"]},
+  G:{name:"恋愛少女タイプ",sub:"束縛と依存が夫を追い詰めてきた",color:"#d35400",
+    desc:"本来このタイプは男性から追いかけられるタイプです。あまり男性から別れや離婚を告げられることはありません。それでもあなたが離婚だと言われているのであれば、本当に異常なほどの束縛や、病的なほどの依存が発生しています。夫はあなたのことを愛しているからこそ、その重さに精神的に疲れ果ててしまったわけです。",
+    actions:["徹底的に自分磨きを行って、病的なほどの束縛や依存体質を乗り越えて、自立した力強い肝っ玉母ちゃん妻を目指していかなければいけません。","このタイプは夫は精神的に完全に疲れ果ててしまっているので、自立した魅力のある女性になったとしても、夫はもはや変身したあなたを見る力すら失ってしまっている可能性が高いです。","ネット復縁工作を行って夫の心に活力を取り戻しつつ、妻の劇的な成長・変化に注目するよう誘導していく必要があります。"]},
+  H:{name:"亭主関白被害者タイプ",sub:"深すぎる情と優しさが離婚をためらわせている",color:"#7f8c8d",
+    desc:"夫からのDVや暴力、夫が働かない、酒乱、浮気……本来なら普通に自分から離婚を決断するのが当然の状況です。でもあなたの情や優しさが深すぎるため、そんなダメ夫も昔は優しかったし一生懸命だったし素敵だったと感じて離婚をためらっているタイプです。",
+    actions:["このタイプの夫には、夫に殴られる覚悟で立ち向かっていく精神が大切です。夫に殴られる覚悟で夫に立ち向かうことで、夫をDV夫に仕立て上げて、有責配偶者にして事実上離婚できなくさせてしまいましょう。","さらに夫に殴られる覚悟で実際に夫から暴力を受けることで、夫を「DV夫の共依存状態」に引きずりこむことができます。","ネット復縁工作を行う必要性はあまり高くありませんが、そのような共依存状態を作り出し夫を引き止めるために、復縁セルフガイドコースで復縁コンシェルジュに相談をし続けることが重要です。"]}
+};
+
+const labels=['A','B','C','D'];
+let current=0,answers=[],scores={A:0,B:0,C:0,D:0,E:0,F:0,G:0,H:0};
+
+function renderQuestion(){
+  const q=questions[current];
+  document.getElementById('qnum').textContent='QUESTION '+(current+1<10?'0'+(current+1):current+1);
+  document.getElementById('qtext').textContent=q.text;
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn'+(answers[current]===i?' selected':'');
+    btn.setAttribute('data-label',labels[i]);
+    btn.textContent=o;
+    btn.onclick=()=>selectOpt(i);
+    opts.appendChild(btn);
+  });
+  const pct=Math.round(((current+1)/20)*100);
+  document.getElementById('pbar').style.width=Math.max(5,pct)+'%';
+  document.getElementById('plabel').textContent=(current+1)+' / 20';
+  document.getElementById('btn-next').disabled=answers[current]===undefined;
+  document.getElementById('btn-back').style.visibility=current===0?'hidden':'visible';
+  document.getElementById('btn-next').textContent=current===19?'診断結果を見る →':'次へ →';
+}
+
+function selectOpt(i){
+  answers[current]=i;
+  document.querySelectorAll('.opt-btn').forEach((b,idx)=>{b.classList.toggle('selected',idx===i);});
+  document.getElementById('btn-next').disabled=false;
+}
+function goNext(){if(answers[current]===undefined)return;if(current<19){current++;renderQuestion();}else{calcResult();}}
+function goBack(){if(current>0){current--;renderQuestion();}}
+
+function calcResult(){
+  scores={A:0,B:0,C:0,D:0,E:0,F:0,G:0,H:0};
+  answers.forEach((ans,qi)=>{
+    const s=questions[qi].scores[ans];
+    if(s) Object.keys(s).forEach(k=>{scores[k]=(scores[k]||0)+s[k];});
+  });
+  let best='A',bestScore=-1;
+  Object.keys(scores).forEach(k=>{if(scores[k]>bestScore){bestScore=scores[k];best=k;}});
+  showResult(best);
+}
+
+function showResult(typeKey){
+  const t=types[typeKey];
+  document.getElementById('quiz-view').style.display='none';
+  document.getElementById('result-view').style.display='block';
+  document.getElementById('r-badge').textContent='診断タイプ';
+  document.getElementById('r-name').innerHTML=t.name;
+  document.getElementById('r-sub').textContent=t.sub;
+  document.getElementById('r-desc').textContent=t.desc;
+
+  const axes=[
+    {label:'自己認識の深さ',    typeKey:'F', max:12, color:'#4a90d9'},
+    {label:'感情の安定さ',      typeKey:'G', max:13, color:'#27ae60'},
+    {label:'夫への理解度',      typeKey:'E', max:11, color:'#e8a838'},
+    {label:'自立度・行動力',    typeKey:'C', max:11, color:'#8e44ad'},
+    {label:'関係修復への意欲',  typeKey:'A', max:14, color:'#d35400'}
+  ];
+  let html='<div class="score-card-title">あなたの5軸スコア（高いほど良い状態）</div>';
+  axes.forEach(ax=>{
+    const raw=Math.min(scores[ax.typeKey]||0,ax.max);
+    const pct=Math.max(0,100-Math.round((raw/ax.max)*100));
+    const label=pct>=80?'良好':pct>=60?'普通':pct>=40?'要改善':pct>=20?'課題大':'要緊急対応';
+    html+=`<div class="score-row"><div class="score-label"><span>${ax.label}</span><span class="score-pct">${pct}% ${label}</span></div><div class="score-track"><div class="score-fill" style="width:${pct}%; background:${ax.color}"></div></div></div>`;
+  });
+  document.getElementById('r-scores').innerHTML=html;
+
+  const al=document.getElementById('r-actions');
+  al.innerHTML='<h3>今すぐ取るべき行動 TOP3</h3>'+
+    t.actions.map((a,i)=>`<div class="action-item"><div class="action-num">${i+1}</div><span>${a}</span></div>`).join('');
+}
+
+function restart(){
+  current=0;answers=[];scores={A:0,B:0,C:0,D:0,E:0,F:0,G:0,H:0};
+  document.getElementById('result-view').style.display='none';
+  document.getElementById('quiz-view').style.display='block';
+  renderQuestion();
+}
+renderQuestion();
+</script>
+</body>
+</html>
